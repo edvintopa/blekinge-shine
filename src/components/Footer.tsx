@@ -1,8 +1,16 @@
 import { Instagram, Facebook, MapPin, Phone, Mail } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { HashLink } from "react-router-hash-link";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+
+  const quickLinks = [
+    { to: "/#tjanster", label: "Tjänster" },
+    { to: "/#priser", label: "Priser" },
+    { to: "/#om-oss", label: "Om oss" },
+    { to: "/#boka", label: "Boka städning" },
+  ];
 
   return (
     <footer id="kontakt" className="bg-card border-t border-border">
@@ -10,9 +18,13 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <img src={logo} alt="Elite Clean Service" className="h-16 w-auto mb-4" />
+            <img
+              src={logo}
+              alt="Elite Clean Service"
+              className="h-16 w-auto mb-4"
+            />
             <p className="text-muted-foreground max-w-md mb-6">
-              Professionell städning och flytthjälp i Karlskrona och hela Blekinge. 
+              Professionell städning och flytthjälp i Karlskrona och hela Blekinge.
               Fasta priser, kvalitetsgaranti och RUT-avdrag.
             </p>
             <div className="flex gap-4">
@@ -41,19 +53,14 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-bold text-foreground mb-4">Snabblänkar</h4>
             <ul className="space-y-3">
-              {[
-                { href: "#tjanster", label: "Tjänster" },
-                { href: "#priser", label: "Priser" },
-                { href: "#om-oss", label: "Om oss" },
-                { href: "#boka", label: "Boka städning" },
-              ].map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
+              {quickLinks.map((link) => (
+                <li key={link.to}>
+                  <HashLink
+                    to={link.to}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </HashLink>
                 </li>
               ))}
             </ul>

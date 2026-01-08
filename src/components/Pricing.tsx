@@ -1,4 +1,5 @@
 import { Check, ArrowRight } from "lucide-react";
+import { HashLink } from "react-router-hash-link";
 
 const pricingCategories = [
   {
@@ -46,7 +47,8 @@ const Pricing = () => {
             Fasta priser med RUT-avdrag
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Alla priser inkluderar arbete och material. Du betalar endast halva priset tack vare RUT-avdraget.
+            Alla priser inkluderar arbete och material. Du betalar endast halva
+            priset tack vare RUT-avdraget.
           </p>
         </div>
 
@@ -54,11 +56,10 @@ const Pricing = () => {
           {pricingCategories.map((category, catIndex) => (
             <div
               key={category.title}
-              className={`bg-card rounded-2xl overflow-hidden border ${
-                category.featured
+              className={`bg-card rounded-2xl overflow-hidden border ${category.featured
                   ? "border-primary shadow-xl shadow-primary/10 ring-2 ring-primary/20"
                   : "border-border shadow-sm"
-              } animate-fade-in`}
+                } animate-fade-in`}
               style={{ animationDelay: `${catIndex * 0.1}s` }}
             >
               {category.featured && (
@@ -71,7 +72,9 @@ const Pricing = () => {
                 <h3 className="font-display text-2xl font-bold text-foreground mb-2">
                   {category.title}
                 </h3>
-                <p className="text-muted-foreground mb-6">{category.description}</p>
+                <p className="text-muted-foreground mb-6">
+                  {category.description}
+                </p>
 
                 <div className="space-y-4">
                   {category.items.map((item) => (
@@ -95,24 +98,24 @@ const Pricing = () => {
                   ))}
                 </div>
 
-                <a
-                  href="#boka"
-                  className={`mt-8 w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold transition-all ${
-                    category.featured
+                <HashLink
+                  to="/#boka"
+                  className={`mt-8 w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold transition-all ${category.featured
                       ? "gradient-hero text-primary-foreground hover:opacity-90"
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  }`}
+                    }`}
                 >
                   Boka {category.title.toLowerCase()}
                   <ArrowRight size={18} />
-                </a>
+                </HashLink>
               </div>
             </div>
           ))}
         </div>
 
         <p className="text-center text-muted-foreground text-sm mt-8">
-          * RUT-avdrag beräknas som 50% av arbetskostnaden. Maxavdrag 75 000 kr per person och år.
+          * RUT-avdrag beräknas som 50% av arbetskostnaden. Maxavdrag 75 000 kr per
+          person och år.
         </p>
       </div>
     </section>
