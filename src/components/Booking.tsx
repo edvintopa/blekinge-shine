@@ -2,10 +2,9 @@ import { useState } from "react";
 import { Calendar, Clock, CheckCircle } from "lucide-react";
 import emailjs from "@emailjs/browser";
 
-// ✅ EmailJS – EXAKTA ID:n (som i din bild)
-const SERVICE_ID = "service_akaiwjr";
-const TEMPLATE_ID = "template_rtnguzb";
-const PUBLIC_KEY = "VCmcZ0ALN_AjFhYFU";
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 type FormState = {
   firstName: string;
@@ -209,8 +208,6 @@ const Booking = () => {
                 {status === "error" && (
                   <p className="text-red-200 text-sm">
                     Något gick fel. Försök igen.
-                    <br />
-                    Öppna Console (F12) för att se exakt fel.
                   </p>
                 )}
               </form>
