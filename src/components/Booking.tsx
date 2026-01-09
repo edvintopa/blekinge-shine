@@ -1,12 +1,80 @@
 import { useState } from "react";
 import { Calendar, Clock, CheckCircle } from "lucide-react";
+import emailjs from "@emailjs/browser";
+
+// ✅ EmailJS-IDs
+const SERVICE_ID = "service_qwq301u";
+const TEMPLATE_ID = "template_nduie69";
+const PUBLIC_KEY = "VCmcZ0ALN_AjFhYFU";
+
+type FormState = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  message: string;
+  company: string; // 🛡️ Honeypot (anti-spam)
+};
 
 const Booking = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState<FormState>({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    message: "",
+    company: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
+    "idle"
+  );
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+
+    // 🛡️ Honeypot check: om detta fält fylls i är det nästan alltid en bot
+    if (form.company.trim().length > 0) {
+      console.warn("Spam detected (honeypot filled).");
+      return;
+    }
+
+    setStatus("sending");
+
+    try {
+      await emailjs.send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phone: form.phone,
+          email: form.email,
+          message: form.message,
+        },
+        { publicKey: PUBLIC_KEY }
+      );
+
+      setStatus("success");
+      setForm({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        message: "",
+        company: "",
+      });
+    } catch (err) {
+      console.error("EmailJS error:", err);
+      setStatus("error");
+    }
   };
 
   return (
@@ -14,31 +82,73 @@ const Booking = () => {
       id="boka"
       className="py-20 md:py-28 gradient-hero relative overflow-hidden"
     >
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-10 right-20 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+        <div className="absolute bottom-10 left-20 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
+      </div>
+
       <div className="container relative z-10">
         <div className="max-w-3xl mx-auto text-center text-primary-foreground">
-          <span className="inline-block bg-white/20 px-4 py-2 rounded-full text-sm mb-6">
+          <span className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-6">
             Boka din städning
           </span>
 
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
             Boka enkelt online
           </h2>
 
-          <p className="text-lg text-white/85 mb-12">
+          <p className="text-lg text-white/85 mb-12 max-w-2xl mx-auto">
             Fyll i formuläret så återkommer vi inom 24 timmar.
           </p>
 
           <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 md:p-12 text-left">
-            {!submitted ? (
+            {status === "success" ? (
+              <div className="text-center space-y-4">
+                <div className="flex justify-center">
+                  <CheckCircle size={48} className="text-green-300" />
+                </div>
+                <h3 className="font-display text-2xl font-bold">
+                  Tack för din förfrågan!
+                </h3>
+                <p className="text-white/80">
+                  Vi har mottagit din bokning och kontaktar dig inom 24 timmar.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStatus("idle")}
+                  className="mt-2 bg-white text-primary font-semibold px-6 py-3 rounded-lg hover:bg-white/90 transition"
+                >
+                  Skicka en till
+                </button>
+              </div>
+            ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* 🛡️ Honeypot field (osynligt för människor) */}
+                <input
+                  type="text"
+                  name="company"
+                  value={form.company}
+                  onChange={handleChange}
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <input
+                    name="firstName"
+                    value={form.firstName}
+                    onChange={handleChange}
                     type="text"
                     placeholder="Förnamn"
                     required
                     className="w-full px-4 py-3 rounded-lg text-black"
                   />
                   <input
+                    name="lastName"
+                    value={form.lastName}
+                    onChange={handleChange}
                     type="text"
                     placeholder="Efternamn"
                     required
@@ -47,6 +157,9 @@ const Booking = () => {
                 </div>
 
                 <input
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
                   type="tel"
                   placeholder="Telefonnummer"
                   required
@@ -54,6 +167,9 @@ const Booking = () => {
                 />
 
                 <input
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
                   type="email"
                   placeholder="E-postadress"
                   required
@@ -61,6 +177,9 @@ const Booking = () => {
                 />
 
                 <textarea
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
                   placeholder="Beskriv ditt ärende (t.ex. flyttstäd, storlek, datum)"
                   rows={4}
                   required
@@ -69,33 +188,30 @@ const Booking = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-white text-primary font-semibold py-3 rounded-lg hover:bg-white/90 transition"
+                  disabled={status === "sending"}
+                  className="w-full bg-white text-primary font-semibold py-3 rounded-lg hover:bg-white/90 transition disabled:opacity-60"
                 >
-                  Skicka bokningsförfrågan
+                  {status === "sending"
+                    ? "Skickar..."
+                    : "Skicka bokningsförfrågan"}
                 </button>
+
+                {status === "error" && (
+                  <p className="text-red-200 text-sm">
+                    Något gick fel när formuläret skulle skickas. Testa igen.
+                  </p>
+                )}
               </form>
-            ) : (
-              <div className="text-center space-y-4">
-                <div className="flex justify-center">
-                  <CheckCircle size={48} className="text-green-400" />
-                </div>
-                <h3 className="text-2xl font-bold">
-                  Tack för din förfrågan!
-                </h3>
-                <p className="text-white/80">
-                  Vi har mottagit din bokning och kontaktar dig inom 24 timmar.
-                </p>
-              </div>
             )}
 
-            <div className="flex flex-wrap justify-center gap-4 mt-8 text-sm">
+            <div className="flex flex-wrap justify-center gap-4 mt-8">
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <Clock size={16} />
-                <span>Svar inom 24h</span>
+                <Clock size={18} />
+                <span className="text-sm">Svar inom 24h</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <Calendar size={16} />
-                <span>Kostnadsfri offert</span>
+                <Calendar size={18} />
+                <span className="text-sm">Kostnadsfri offert</span>
               </div>
             </div>
           </div>
